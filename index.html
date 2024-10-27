@@ -65,16 +65,19 @@
         }
 
         /* عرض أكبر لحقل اسم المشروع */
-.project-name-input {
-    min-width: 150px;  /* عرض أدنى أكبر لحقل اسم المشروع */
-    width: 100%;       /* يشغل العرض المتاح بالكامل */
-}
+        .project-name-input {
+            min-width: 150px;
+            /* عرض أدنى أكبر لحقل اسم المشروع */
+            width: 100%;
+            /* يشغل العرض المتاح بالكامل */
+        }
 
-/* حجم موحد للحقول الأخرى */
-.score-input {
-    width: 70px;       /* عرض محدد للحقول الأخرى */
-    min-width: 50px;
-}
+        /* حجم موحد للحقول الأخرى */
+        .score-input {
+            width: 70px;
+            /* عرض محدد للحقول الأخرى */
+            min-width: 50px;
+        }
 
 
         .results-container {
@@ -117,6 +120,12 @@
                 align-items: center;
                 justify-content: center;
                 width: 100%;
+            }
+
+            .action-buttons {
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
 
             .header-title {
@@ -172,12 +181,14 @@
                         <th class="p-1">Project Name</th>
                         <th class="p-1" v-for="criterion in criteria">{{ criterion }}</th>
                         <th class="p-1">Total Score</th>
+                        <th class="p-1">Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="(project, index) in projects" :key="index">
                         <td>
-                            <input v-model="project.name" class="form-control text-center font-weight-bold project-name-input"
+                            <input v-model="project.name"
+                                class="form-control text-center font-weight-bold project-name-input"
                                 placeholder="Project Name">
                         </td>
                         <td v-for="(criterion, criterionIndex) in criteria" :key="criterionIndex">
@@ -190,17 +201,26 @@
                         <td class="text-center font-weight-bold">
                             {{ isNaN(calculateTotalScore(project.scores)) ? '-' : calculateTotalScore(project.scores) }}
                         </td>
+
+                        <td>
+                            <button class="btn btn-danger" @click="projects.splice(index, 1)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
-        <div class="text-center mb-4">
+        <div class="action-buttons mb-4">
             <button class="btn btn-primary mx-2" @click="addProject">
                 <i class="fas fa-plus-circle"></i> Add Project
             </button>
-            <button class="btn btn-primary" @click="evaluateProjects">
-                <i class="fas fa-chart-line"></i> Evaluate & Store
+            <button class="btn btn-primary mx-2" @click="evaluateProjects">
+                <i class="fas fa-chart-line"></i> Evaluate
+            </button>
+            <button type="button" class="btn btn-primary mx-2" data-toggle="modal" data-target="#exampleModal">
+                <i class="fas fa-share"></i> Share Via Email
             </button>
         </div>
 
@@ -219,6 +239,29 @@
         </div>
     </div>
 
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Share Results Via Email</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="email" name="email" id="email" class="form-control" placeholder="Enter Your Email .. " required v-model="email">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary btn-add mx-auto"><i class="fas fa-share"></i> Share</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <!-- Bootstrap JS CDN -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
@@ -235,11 +278,14 @@
                 ]);
 
                 const projects = ref([
-                    { name: "", scores: Array(11) }
+                    { name: "", scores: Array(11) },
                 ]);
 
                 const sortedResults = ref([]);
                 let chart = null;
+                const email = ref("");
+
+
 
                 const validateInput = (input) => {
                     return !isNaN(input) && input >= 0 && input <= 10;
