@@ -101,6 +101,12 @@
 
             .logoSec {
                 justify-content: center;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .brooklyn {
+                display: none;
             }
 
             img {
@@ -138,6 +144,12 @@
                 font-size: 0.8rem;
             }
 
+            .brooklyn {
+                display: none;
+            }
+
+            
+
             img {
                 width: 50%;
                 height: auto;
@@ -163,8 +175,8 @@
                     School
                 </h1>
             </div>
+            <h2 class=" text-center header-title">Project Evaluation Tool</h2>
         </div>
-        <h2 class=" text-center header-title">Project Evaluation Tool</h2>
 
         <!-- Reset Button -->
         <div class="text-right mb-3 d-flex justify-content-end">
@@ -213,13 +225,13 @@
         </div>
 
         <div class="action-buttons mb-4">
-            <button class="btn btn-primary mx-2" @click="addProject">
+            <button class="btn btn-primary mx-1" @click="addProject">
                 <i class="fas fa-plus-circle"></i> Add Project
             </button>
-            <button class="btn btn-primary mx-2" @click="evaluateProjects">
+            <button class="btn btn-primary mx-1" @click="evaluateProjects">
                 <i class="fas fa-chart-line"></i> Evaluate
             </button>
-            <button type="button" class="btn btn-primary mx-2" data-toggle="modal" data-target="#exampleModal">
+            <button type="button" class="btn btn-primary mx-1" data-toggle="modal" data-target="#exampleModal">
                 <i class="fas fa-share"></i> Share Via Email
             </button>
         </div>
@@ -377,7 +389,7 @@
                 };
 
                 onMounted(() => {
-                    const storedResults = localStorage.getItem('projectResults');
+                    // const storedResults = localStorage.getItem('projectResults');
                     if (storedResults) {
                         sortedResults.value = JSON
                             .parse(storedResults)
