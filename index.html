@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Evaluation Tool</title>
+    <!-- Bootstrap CSS CDN -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- SweetAlert CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- ApexCharts CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- Vue 3 Composition API CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        body {
+            background-color: #f4f6f9;
+            font-family: Arial, sans-serif;
+            padding: 15px;
+        }
+
+        .header-title {
+            color: #002768;
+            font-weight: bold;
+        }
+
+        .table thead th {
+            background-color: #002768;
+            color: white;
+            text-align: center;
+        }
+
+        .table tbody td input {
+            text-align: center;
+        }
+
+        .btn-primary,
+        .btn-add {
+            background-color: #002768;
+            border: none;
+            margin-top: 5px;
+        }
+
+        .btn-add {
+            font-size: 18px;
+            padding: 5px 15px;
+            margin-top: -5px;
+            cursor: pointer;
+        }
+
+        .list-group-item {
+            background-color: #f1f1f1;
+        }
+
+        .list-group {
+            width: 25%;
+        }
+
+        img {
+            width: 30%;
+            height: auto;
+        }
+
+        /* عرض أكبر لحقل اسم المشروع */
+.project-name-input {
+    min-width: 150px;  /* عرض أدنى أكبر لحقل اسم المشروع */
+    width: 100%;       /* يشغل العرض المتاح بالكامل */
+}
+
+/* حجم موحد للحقول الأخرى */
+.score-input {
+    width: 70px;       /* عرض محدد للحقول الأخرى */
+    min-width: 50px;
+}
+
+
+        .results-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .chart-container {
+            max-width: 400px;
+            height: auto;
+            padding: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .table-responsive {
+                font-size: 0.9rem;
+            }
+
+            .logoSec {
+                justify-content: center;
+            }
+
+            img {
+                width: 50%;
+                height: auto;
+
+            }
+
+            .list-group {
+                font-size: 0.9rem;
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            .results-container {
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+            }
+
+            .header-title {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .table-responsive {
+                font-size: 0.8rem;
+            }
+
+            img {
+                width: 50%;
+                height: auto;
+            }
+
+            .btn-add {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" class=" my-4">
+        <div class="logoSec d-flex">
+            <div class="d-flex logoSec align-items-center">
+                <img class=" img-fluid" src="https://ik.imagekit.io/ts7pphpbz3/bb_-_logo.png?updatedAt=1729966936147"
+                    alt="brooklyn">
+                <div class="rounded brooklyn" style="width: 5px; height: 100px; background-color: #002768;"></div>
+                <h1 class="brooklyn"
+                    style="text-wrap: wrap; font-size: 1.5rem; width: 100px; margin-left: 10px; color: #002768">
+                    <span style="color: #AB2143;" class="fw-bold ">Brooklyn</span> Business
+                    School
+                </h1>
+            </div>
+        </div>
+        <h2 class=" text-center header-title">Project Evaluation Tool</h2>
+
+        <!-- Reset Button -->
+        <div class="text-right mb-3 d-flex justify-content-end">
+            <button class="btn btn-add text-white" style="background-color: #AC162C;" @click="resetValues">
+                <i class="fas fa-redo-alt"></i> Reset
+            </button>
+        </div>
+
+        <!-- Evaluation Table -->
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th class="p-1">Project Name</th>
+                        <th class="p-1" v-for="criterion in criteria">{{ criterion }}</th>
+                        <th class="p-1">Total Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(project, index) in projects" :key="index">
+                        <td>
+                            <input v-model="project.name" class="form-control text-center font-weight-bold project-name-input"
+                                placeholder="Project Name">
+                        </td>
+                        <td v-for="(criterion, criterionIndex) in criteria" :key="criterionIndex">
+                            <input type="number" v-model.number="project.scores[criterionIndex]"
+                                :placeholder="project.scores[criterionIndex] === 0 ? '0' : ''"
+                                class="form-control text-center font-weight-bold score-input" min="0" max="10">
+                        </td>
+
+
+                        <td class="text-center font-weight-bold">
+                            {{ isNaN(calculateTotalScore(project.scores)) ? '-' : calculateTotalScore(project.scores) }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="text-center mb-4">
+            <button class="btn btn-primary mx-2" @click="addProject">
+                <i class="fas fa-plus-circle"></i> Add Project
+            </button>
+            <button class="btn btn-primary" @click="evaluateProjects">
+                <i class="fas fa-chart-line"></i> Evaluate & Store
+            </button>
+        </div>
+
+        <!-- Results and Chart Container -->
+        <h3 v-if="sortedResults.length > 0" class="text-center  mb-3 header-title">Evaluation Results</h3>
+        <div class="results-container mt-5">
+            <div class="list-group w-md-50 w-lg-75">
+                <li v-for="result in sortedResults" class="list-group-item d-flex justify-content-between">
+                    <span>{{ result.name }}</span>
+                    <span>{{ result.totalScore }}</span>
+                </li>
+            </div>
+
+            <!-- Chart Container -->
+            <div class="chart-container" id="chart"></div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS CDN -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        const { createApp, ref, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                const criteria = ref([
+                    "Growth", "Passion", "Easy Competitor", "Know How", "Supplier", "Easy Entrance",
+                    "Scalability", "Start Cost", "USP", "Team", "Personal"
+                ]);
+
+                const projects = ref([
+                    { name: "", scores: Array(11) }
+                ]);
+
+                const sortedResults = ref([]);
+                let chart = null;
+
+                const validateInput = (input) => {
+                    return !isNaN(input) && input >= 0 && input <= 10;
+                };
+
+                const calculateTotalScore = (scores) => {
+                    if (!scores.every(validateInput)) {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Oops...",
+                            text: "Invalid input. Please enter numbers between 0 and 10.",
+                            confirmButtonText: "OK"
+                        });
+                        return NaN;
+                    } else {
+                        let result = scores.reduce((acc, score) => acc * score, 1);
+                        return Math.round((result * 5 * 6) / 10000000000);
+                    }
+                };
+
+                const addProject = () => {
+                    projects.value.push({ name: "", scores: Array(11) });
+                };
+
+                const resetValues = () => {
+                    projects.value = [{ name: "", scores: Array(11) }];
+                    sortedResults.value = [];
+                    if (chart) {
+                        chart.destroy();
+                        chart = null;
+                    }
+                };
+
+                const evaluateProjects = () => {
+                    const missingName = projects.value.some(project => !project.name.trim());
+                    if (missingName) {
+                        Swal.fire({
+                            icon: "warning",
+                            title: '<i class="fas fa-exclamation-circle"></i> Missing Project Name',
+                            html: "Please enter a name for each project before evaluating.",
+                            confirmButtonText: "OK"
+                        });
+                        return;
+                    }
+
+                    const results = projects.value.map(project => ({
+                        name: project.name,
+                        totalScore: calculateTotalScore(project.scores),
+                    }));
+
+                    sortedResults.value = results.sort((a, b) => b.totalScore - a.totalScore);
+                    localStorage.setItem('projectResults', JSON.stringify(sortedResults.value));
+
+                    updateChart();
+                };
+
+                const updateChart = () => {
+                    const labels = sortedResults.value.map(result => result.name);
+                    const data = sortedResults.value.map(result => result.totalScore);
+
+                    if (chart) {
+                        chart.updateOptions({
+                            labels: labels,
+                            series: data
+                        });
+                    } else {
+                        chart = new ApexCharts(document.querySelector("#chart"), {
+                            chart: {
+                                type: 'donut',
+                                width: '100%',
+                                height: '100%'
+                            },
+                            series: data,
+                            labels: labels,
+                            responsive: [{
+                                breakpoint: 480,
+                                options: {
+                                    chart: {
+                                        width: 200
+                                    },
+                                    legend: {
+                                        position: 'bottom'
+                                    }
+                                }
+                            }]
+                        });
+                        chart.render();
+                    }
+                };
+
+                onMounted(() => {
+                    const storedResults = localStorage.getItem('projectResults');
+                    if (storedResults) {
+                        sortedResults.value = JSON
+                            .parse(storedResults)
+                            .sort((a, b) => b.totalScore - a.totalScore);
+                        updateChart();
+                    }
+                });
+
+
+                return {
+                    criteria,
+                    projects,
+                    sortedResults,
+                    calculateTotalScore,
+                    addProject,
+                    evaluateProjects,
+                    resetValues
+                };
+            }
+        }).mount('#app');
+    </script>
+
+</body>
+
+</html>
