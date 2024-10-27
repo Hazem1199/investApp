@@ -310,7 +310,15 @@
                             title: "Oops...",
                             text: "Invalid input. Please enter numbers between 0 and 10.",
                             confirmButtonText: "OK"
+                        }).then(() => {
+                            // إعادة تعيين القيم غير الصحيحة إلى فارغة أو صفر بعد تأكيد الرسالة
+                            scores.forEach((score, index) => {
+                                if (!validateInput(score)) {
+                                    scores[index] = ""; // يمكنك تعيينها إلى 0 بدلاً من "" إذا أردت
+                                }
+                            });
                         });
+
                         return NaN;
                     } else {
                         let result = scores.reduce((acc, score) => acc * score, 1);
